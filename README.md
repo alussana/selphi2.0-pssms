@@ -1,6 +1,6 @@
-# SELPHI$_2.0$ PSSM features
+# SELPHI<sub>2.0</sub> PSSM features
 
-Compute kinase-phosphosite PSSM scores to be used as features in the SELPHI$_{2.0}$ model.
+Compute kinase-phosphosite PSSM scores to be used as features in the SELPHI<sub>2.0</sub> model.
 
 > Research paper: [https://doi.org/10.1101/2022.01.15.476449](https://doi.org/10.1101/2022.01.15.476449)
 
