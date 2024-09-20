@@ -1,0 +1,4 @@
+.nextflow*
+misc/*flowchart.svg.*
+*.sif
+*__pycache__
