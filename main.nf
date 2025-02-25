@@ -60,6 +60,11 @@ include { make_regulation_train_dataset } from './modules/regulation_model'
 include { train_regulation_model } from './modules/regulation_model'
 include { predict_regulation_sign } from './modules/regulation_model'
 
+include { kinase_dendrogram_all } from './modules/selphi2_pred_analysis'
+include { kinase_dendrogram_tyr } from './modules/selphi2_pred_analysis'
+include { kinase_dendrogram_ser_thr } from './modules/selphi2_pred_analysis'
+
+
 // ===== //
 
 workflow SER_THR_PSSMS {
@@ -570,13 +575,25 @@ workflow REGULATION_MODEL {
 
 }
 
+
+workflow KINASE_DENDROGRAM {
+
+    main:
+        kinase_dendrogram_all()
+        kinase_dendrogram_ser_thr()
+        kinase_dendrogram_tyr()
+
+}
+
 workflow {
 
     // get pssms
-    //ser_thr_pssm_dict_h5 = SER_THR_PSSMS().pssm
+    /*ser_thr_pssm_dict_h5 = SER_THR_PSSMS().pssm*/
+    /*
     ser_thr_pssm_dict_h5 = Channel.fromPath("${projectDir}/data/S_T_PSSMs.h5")
-    //tyr_pssm_dict_h5 = TYR_PSSMS().pssm
-    tyr_pssm_dict_h5 = Channel.fromPath("${projectDir}/data/Y_PSSMs.h5")
+    tyr_pssm_dict_h5 = TYR_PSSMS().pssm
+    */
+    /*tyr_pssm_dict_h5 = Channel.fromPath("${projectDir}/data/Y_PSSMs.h5")*/
 
     // generate dictionary to map Gene Name to UniProt AC
     //id_dict = GENE_2_AC_ID_DICT()
@@ -586,11 +603,13 @@ workflow {
     genesynonym_2_genename_dict = GENESYNONYM_2_GENENAME()*/
     
     // compute pssm scores on ${selphi_2_features_table} phosphosites
+    /*
     k_p_ser_thr_pssm_scores = SER_THR_PSSM_SCORES_FROM_SEQ( ser_thr_pssm_dict_h5 )
     k_p_pssm_scores = TYR_PSSM_SCORES_FROM_SEQ( k_p_ser_thr_pssm_scores.features_table,
                                                 k_p_ser_thr_pssm_scores.phosphosites,
                                                 tyr_pssm_dict_h5 )
 
+    */
     /*
     // compute pssm scores on ${selphi_2_regulation_features_table} phosphosites
     regulation_features_table = REGULATION_PSSM_SCORES( ser_thr_pssm_dict_h5,
@@ -623,5 +642,7 @@ workflow {
     /*regulation_model = REGULATION_MODEL( regulation_features_table,
                                          k_p_ser_thr_pssm_scores.features_table )
     */
+
+    KINASE_DENDROGRAM()
 
 }
