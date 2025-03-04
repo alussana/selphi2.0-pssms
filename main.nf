@@ -63,6 +63,9 @@ include { predict_regulation_sign } from './modules/regulation_model'
 include { kinase_dendrogram_all } from './modules/selphi2_pred_analysis'
 include { kinase_dendrogram_tyr } from './modules/selphi2_pred_analysis'
 include { kinase_dendrogram_ser_thr } from './modules/selphi2_pred_analysis'
+include { go_terms_dendrogram_all } from './modules/selphi2_pred_analysis'
+include { go_terms_dendrogram_tyr } from './modules/selphi2_pred_analysis'
+include { go_terms_dendrogram_ser_thr } from './modules/selphi2_pred_analysis'
 
 
 // ===== //
@@ -582,6 +585,10 @@ workflow KINASE_DENDROGRAM {
         kinase_dendrogram_all()
         kinase_dendrogram_ser_thr()
         kinase_dendrogram_tyr()
+
+        go_terms_dendrogram_all()
+        go_terms_dendrogram_ser_thr()
+        go_terms_dendrogram_tyr()
 
 }
 

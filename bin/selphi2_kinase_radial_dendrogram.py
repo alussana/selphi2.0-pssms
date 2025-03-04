@@ -6,7 +6,6 @@ import scipy.cluster.hierarchy as sch
 import numpy as np
 import radialtree as rt
 import matplotlib.pyplot as plt
-from matplotlib import cm
 
 
 kinase_family_colors = {
@@ -48,7 +47,6 @@ def main():
     out_pdf = "selphi2_kinase_dendrogram/circular_all.pdf"
     kinase_family = "all"
     """
-
    
     selphi_k_p = pd.read_csv(selphi_k_p_tsv, sep="\t", index_col=None)
     selphi_k_p.columns = ["Kinase","Specificity","Family","Phosphosite"]
@@ -137,19 +135,19 @@ def main():
         linkage_matrix,
         labels=distance_df.index,
         no_plot=True,
-        color_threshold=0
+        #color_threshold=0
     )
 
     # plot circular dendrogram
     if kinase_family == "all":
-        figsize = (15,6)
-        fontsize = 4
+        figsize = (14,6)
+        fontsize = 3
     elif kinase_family == "tyr":
         figsize = (12,6)
         fontsize = 10
     elif kinase_family == "ser/thr":
-        figsize = (15,6)
-        fontsize = 5
+        figsize = (14,6)
+        fontsize = 4
     rt.plot(
         dendrogram,
         colorlabels=colors_dict,

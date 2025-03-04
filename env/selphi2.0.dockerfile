@@ -16,5 +16,5 @@ RUN pip3 install --break-system-packages scipy
 RUN pip3 install --break-system-packages matplotlib
 RUN pip3 install --break-system-packages seaborn
 RUN apt-get update && apt-get install -y git
-RUN git clone https://github.com/koonimaru/radialtree.git
+RUN git clone https://github.com/alussana/radialtree.git
 RUN pip3 install --break-system-packages ./radialtree

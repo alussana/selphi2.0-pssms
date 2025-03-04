@@ -134,3 +134,92 @@ process kinase_dendrogram_ser_thr {
 
 }
 
+
+/*
+[...]
+*/
+process go_terms_dendrogram_all {
+
+    publishDir "${out_dir}", 
+               pattern: "selphi2_kinase_dendrogram/*pdf",
+               mode: 'copy'
+
+    output:
+        path 'selphi2_kinase_dendrogram/*.pdf'
+
+    script:
+    """
+    mkdir -p selphi2_kinase_dendrogram
+
+    ln -s ${selphi2_prediction_matrix_dir}/prediction_matrix_high_conf     high_conf
+
+    cat high_conf | awk -F"," '{print \$2"\\t"\$4"\\t"\$5"\\t"\$7"_"\$11}' > k_p_associations.tsv
+
+    selphi2_go_terms_radial_dendrogram.py \
+        ${kinase_substrates_go_leaves_enrich} \
+        selphi2_kinase_dendrogram/radial_terms_all.pdf \
+        k_p_associations.tsv \
+        all
+    """
+
+}
+
+
+/*
+[...]
+*/
+process go_terms_dendrogram_ser_thr {
+
+    publishDir "${out_dir}", 
+               pattern: "selphi2_kinase_dendrogram/*pdf",
+               mode: 'copy'
+
+    output:
+        path 'selphi2_kinase_dendrogram/*.pdf'
+
+    script:
+    """
+    mkdir -p selphi2_kinase_dendrogram
+
+    ln -s ${selphi2_prediction_matrix_dir}/prediction_matrix_high_conf     high_conf
+
+    cat high_conf | awk -F"," '{print \$2"\\t"\$4"\\t"\$5"\\t"\$7"_"\$11}' > k_p_associations.tsv
+
+    selphi2_go_terms_radial_dendrogram.py \
+        ${kinase_substrates_go_leaves_enrich} \
+        selphi2_kinase_dendrogram/radial_terms_ser_thr.pdf \
+        k_p_associations.tsv \
+        ser/thr
+    """
+
+}
+
+
+/*
+[...]
+*/
+process go_terms_dendrogram_tyr {
+
+    publishDir "${out_dir}", 
+               pattern: "selphi2_kinase_dendrogram/*pdf",
+               mode: 'copy'
+
+    output:
+        path 'selphi2_kinase_dendrogram/*.pdf'
+
+    script:
+    """
+    mkdir -p selphi2_kinase_dendrogram
+
+    ln -s ${selphi2_prediction_matrix_dir}/prediction_matrix_high_conf     high_conf
+
+    cat high_conf | awk -F"," '{print \$2"\\t"\$4"\\t"\$5"\\t"\$7"_"\$11}' > k_p_associations.tsv
+
+    selphi2_go_terms_radial_dendrogram.py \
+        ${kinase_substrates_go_leaves_enrich} \
+        selphi2_kinase_dendrogram/radial_terms_tyr.pdf \
+        k_p_associations.tsv \
+        tyr
+    """
+
+}
