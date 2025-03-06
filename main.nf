@@ -72,7 +72,10 @@ include { draw_roc_curves_per_kin_fam } from './modules/selphi2_pred_analysis'
 include { draw_pr_curves_per_kin_fam } from './modules/selphi2_pred_analysis'
 include { draw_roc_curves_per_kin_fam_sugiyama } from './modules/selphi2_pred_analysis'
 include { draw_pr_curves_per_kin_fam_sugiyama } from './modules/selphi2_pred_analysis'
-
+include { average_auroc_kin_fam } from './modules/selphi2_pred_analysis'
+include { average_aupr_kin_fam } from './modules/selphi2_pred_analysis'
+include { average_auroc_kin_fam_sugiyama } from './modules/selphi2_pred_analysis'
+include { average_aupr_kin_fam_sugiyama } from './modules/selphi2_pred_analysis'
 
 // ===== //
 
@@ -598,7 +601,33 @@ workflow KINASE_DENDROGRAM {
 
 }
 
+
 workflow PERFORMANCE_PER_KIN_FAM_PSP {
+
+    main:
+        k_p_pos_set = Channel.fromPath( selphi_2_k_p_pos_set )
+        id = Channel.of( (1..100).toList() ).flatten()
+        kin_fam = Channel.of(['AGC', 'Atypical', 'CAMK', 'CK1', 'CMGC', 'Other', 'STE', 'TK', 'TKL']).flatten()
+
+        combined_ch = kin_fam.combine( id ).combine( k_p_pos_set )
+        eval_results = selphi_eval_classifier_w_random_neg_set( combined_ch )
+
+        rocs = eval_results.roc_points.groupTuple()
+        prs = eval_results.pr_points.groupTuple()
+
+        aurocs = eval_results.roc_auc.groupTuple()
+        auprs = eval_results.pr_auc.groupTuple()
+
+        average_auroc_kin_fam( aurocs )
+        average_aupr_kin_fam( auprs )
+
+        draw_roc_curves_per_kin_fam( rocs )
+        draw_pr_curves_per_kin_fam( prs )
+
+}
+
+
+/*workflow PERFORMANCE_PER_KIN_FAM_PSP_COMP {
 
     main:
         k_p_pos_set = Channel.fromPath( selphi_2_k_p_pos_set )
@@ -617,10 +646,34 @@ workflow PERFORMANCE_PER_KIN_FAM_PSP {
 
         draw_pr_curves_per_kin_fam( prs )
 
-}
+}*/
 
 
 workflow PERFORMANCE_PER_KIN_FAM_SUGIYAMA {
+
+    main:
+        id = Channel.of( (1..100).toList() ).flatten()
+        kin_fam = Channel.of(['AGC', 'Atypical', 'CAMK', 'CK1', 'CMGC', 'Other', 'STE', 'TK', 'TKL']).flatten()
+
+        combined_ch = kin_fam.combine( id )
+        eval_results = selphi_eval_classifier_w_sugiyama_random_neg_set( combined_ch )
+
+        rocs = eval_results.roc_points.groupTuple()
+        prs = eval_results.pr_points.groupTuple()
+
+        aurocs = eval_results.roc_auc.groupTuple()
+        auprs = eval_results.pr_auc.groupTuple()
+
+        average_auroc_kin_fam_sugiyama( aurocs )
+        average_aupr_kin_fam_sugiyama( auprs )
+
+        draw_roc_curves_per_kin_fam_sugiyama( rocs )
+        draw_pr_curves_per_kin_fam_sugiyama( prs )
+
+}
+
+
+/*workflow PERFORMANCE_PER_KIN_FAM_SUGIYAMA_COMP {
 
     main:
         id = Channel.of( (1..100).toList() ).flatten()
@@ -638,7 +691,7 @@ workflow PERFORMANCE_PER_KIN_FAM_SUGIYAMA {
 
         draw_pr_curves_per_kin_fam_sugiyama( prs )
 
-}
+}*/
 
 
 workflow {

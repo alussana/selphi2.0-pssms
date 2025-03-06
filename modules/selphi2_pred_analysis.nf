@@ -220,7 +220,7 @@ process go_terms_dendrogram_tyr {
     script:
     """
     CACHEBUST=Mia
-    
+
     mkdir -p selphi2_kinase_dendrogram
 
     ln -s ${selphi2_prediction_matrix_dir}/prediction_matrix_high_conf     high_conf
@@ -254,8 +254,10 @@ process selphi_eval_classifier_w_random_neg_set {
               file("selphi2_100_rand_neg_sets/roc_points/${id}_roc_points.tsv"), emit: roc_points
         tuple val(kin_fam),
               file("selphi2_100_rand_neg_sets/pr_points/${id}_pr_points.tsv"), emit: pr_points
-        path "selphi2_100_rand_neg_sets/roc_points/${id}_roc_auc.txt"
-        path "selphi2_100_rand_neg_sets/pr_points/${id}_pr_auc.txt"
+        tuple val(kin_fam),
+              file("selphi2_100_rand_neg_sets/roc_points/${id}_roc_auc.txt"), emit: roc_auc
+        tuple val(kin_fam),
+              file("selphi2_100_rand_neg_sets/pr_points/${id}_pr_auc.txt"), emit: pr_auc
 
     script:
     """
@@ -263,7 +265,7 @@ process selphi_eval_classifier_w_random_neg_set {
     mkdir -p selphi2_100_rand_neg_sets/pr_points/
 
     cat ${selphi2_prediction_matrix_dir}/prediction_matrix.csv  \
-        | awk -F"," '\$5==${kin_fam}' \
+        | awk -F"," '\$5=="${kin_fam}"' \
         > prediction_matrix.csv
 
     cat input/pos_set.tsv \
@@ -338,6 +340,62 @@ process draw_roc_curves_per_kin_fam {
 
 
 /*
+[...]
+*/
+process average_auroc_kin_fam {
+
+    publishDir "${out_dir}", pattern: "selphi2_100_rand_neg_sets/*.txt", mode: 'copy'
+
+    input:
+        tuple val(kin_fam),
+              file('input/*.txt')
+    
+    output:
+        path "selphi2_100_rand_neg_sets/${kin_fam}_avg_auroc.txt"
+    
+    script:
+    """
+    mkdir -p selphi2_100_rand_neg_sets
+
+    cat input/*txt > curves.txt
+
+    average.py \
+        curves.txt \
+        selphi2_100_rand_neg_sets/${kin_fam}_avg_auroc.txt
+    """
+
+}
+
+
+/*
+[...]
+*/
+process average_aupr_kin_fam {
+
+    publishDir "${out_dir}", pattern: "selphi2_100_rand_neg_sets/*.txt", mode: 'copy'
+
+    input:
+        tuple val(kin_fam),
+              file('input/*.txt')
+    
+    output:
+        path "selphi2_100_rand_neg_sets/${kin_fam}_avg_aupr.txt"
+    
+    script:
+    """
+    mkdir -p selphi2_100_rand_neg_sets
+
+    cat input/*txt > curves.txt
+
+    average.py \
+        curves.txt \
+        selphi2_100_rand_neg_sets/${kin_fam}_avg_aupr.txt
+    """
+
+}
+
+
+/*
 given the points for multiple PR curves, plot their mean, min, and max at each point
 */
 process draw_pr_curves_per_kin_fam {
@@ -384,8 +442,10 @@ process selphi_eval_classifier_w_sugiyama_random_neg_set {
               file("selphi2_sugiyama_100_rand_neg_sets/roc_points/${id}_roc_points.tsv"), emit: roc_points
         tuple val(kin_fam),
               file("selphi2_sugiyama_100_rand_neg_sets/pr_points/${id}_pr_points.tsv"), emit: pr_points
-        path "selphi2_sugiyama_100_rand_neg_sets/roc_points/${id}_roc_auc.txt"
-        path "selphi2_sugiyama_100_rand_neg_sets/pr_points/${id}_pr_auc.txt"
+        tuple val(kin_fam),
+              file("selphi2_sugiyama_100_rand_neg_sets/roc_points/${id}_roc_auc.txt"), emit: roc_auc
+        tuple val(kin_fam),
+              file("selphi2_sugiyama_100_rand_neg_sets/pr_points/${id}_pr_auc.txt"), emit: pr_auc
 
     script:
     """
@@ -393,7 +453,7 @@ process selphi_eval_classifier_w_sugiyama_random_neg_set {
     mkdir -p selphi2_sugiyama_100_rand_neg_sets/pr_points/
 
     cat ${selphi2_prediction_matrix_dir}/prediction_matrix.csv  \
-        | awk -F"," '\$5==${kin_fam}' \
+        | awk -F"," '\$5=="${kin_fam}"' \
         > prediction_matrix.csv
 
 
@@ -429,6 +489,62 @@ process selphi_eval_classifier_w_sugiyama_random_neg_set {
         data.tsv \
         pos_set_filter.txt \
         selphi2_sugiyama_100_rand_neg_sets/pr_points/
+    """
+
+}
+
+
+/*
+[...]
+*/
+process average_auroc_kin_fam_sugiyama {
+
+    publishDir "${out_dir}", pattern: "selphi2_sugiyama_100_rand_neg_sets/*.txt", mode: 'copy'
+
+    input:
+        tuple val(kin_fam),
+              file('input/*.txt')
+    
+    output:
+        path "selphi2_sugiyama_100_rand_neg_sets/${kin_fam}_avg_auroc.txt"
+    
+    script:
+    """
+    mkdir -p selphi2_sugiyama_100_rand_neg_sets
+
+    cat input/*txt > curves.txt
+
+    average.py \
+        curves.txt \
+        selphi2_sugiyama_100_rand_neg_sets/${kin_fam}_avg_auroc.txt
+    """
+
+}
+
+
+/*
+[...]
+*/
+process average_aupr_kin_fam_sugiyama {
+
+    publishDir "${out_dir}", pattern: "selphi2_sugiyama_100_rand_neg_sets/*.txt", mode: 'copy'
+
+    input:
+        tuple val(kin_fam),
+              file('input/*.txt')
+    
+    output:
+        path "selphi2_sugiyama_100_rand_neg_sets/${kin_fam}_avg_aupr.txt"
+    
+    script:
+    """
+    mkdir -p selphi2_sugiyama_100_rand_neg_sets
+
+    cat input/*txt > curves.txt
+
+    average.py \
+        curves.txt \
+        selphi2_sugiyama_100_rand_neg_sets/${kin_fam}_avg_aupr.txt
     """
 
 }
