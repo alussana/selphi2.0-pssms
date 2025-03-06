@@ -44,7 +44,7 @@ def main():
     kinase_family = sys.argv[4]
     """
     selphi_k_p_tsv = "k_p_associations.tsv"
-    out_pdf = "selphi2_kinase_dendrogram/circular_all.pdf"
+    out_pdf = "circular_all.pdf"
     kinase_family = "all"
     """
    
@@ -126,7 +126,7 @@ def main():
     linkage_matrix = sch.linkage(
         condensed_dist,
         method='average',  # Options: 'single', 'complete', 'average', 'ward', etc.
-        optimal_ordering=True  # Attempts to optimize the leaf ordering
+        optimal_ordering=False  # Attempts to optimize the leaf ordering
     )    
 
 

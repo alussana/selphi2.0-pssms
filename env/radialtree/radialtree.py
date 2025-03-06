@@ -120,6 +120,10 @@ def radialTreee(
     x_to_angle = {}
     leaf_positions = []
 
+    # Get the leaf ordering from the dendrogram data
+    # This represents the order as shown in the visualization
+    leaf_order = Z2["leaves"]
+    
     # calculate positions for leaves
     for i, label in enumerate(Z2["ivl"]):
         # original x position in scipy dendrogram
@@ -134,7 +138,6 @@ def radialTreee(
         x1, x2 = coords[0], coords[2]  # the x positions of the two children
         
         if x1 not in x_to_angle:
-            
             # find closest leaf positions and interpolate
             closest_positions = sorted(leaf_positions, key=lambda pos: abs(pos[0] - x1))
             if closest_positions:
@@ -142,7 +145,6 @@ def radialTreee(
                 x_to_angle[x1] = closest_angle
         
         if x2 not in x_to_angle:
-            
             closest_positions = sorted(leaf_positions, key=lambda pos: abs(pos[0] - x2))
             if closest_positions:
                 closest_x, closest_angle = closest_positions[0]
@@ -228,9 +230,9 @@ def radialTreee(
                 rotation=_rot,
                 fontsize=fontsize,
             )
+    
     # handle color labels (wedges)
     if colorlabels != None or sample_classes != None:
-        
         # compute even pie intervals for wedges
         intervals = np.ones(n_leaves) * (2 * np.pi / n_leaves)
         
@@ -240,16 +242,19 @@ def radialTreee(
             labelnames = []
         
             for labelname, colorlist in colorlabels.items():
-                colorlist = np.array(colorlist)[Z2["leaves"]]
+                # FIX: Apply the leaf order to the colorlist
+                # This ensures the colors match the order of labels in the visualization
+                reordered_colorlist = np.array(colorlist)[leaf_order]
+                
                 outerrad = outerrad - width * j - space * j
                 
                 # draw the pie chart with even wedges
                 patches, texts = ax.pie(
                     intervals,
-                    colors=colorlist,
+                    colors=reordered_colorlist,
                     radius=outerrad,
                     counterclock=True,
-                    startangle=360 / (2 * n_leaves),
+                    startangle=-360 / (2 * n_leaves),
                     wedgeprops=dict(width=width),
                 )
                 
@@ -280,8 +285,17 @@ def radialTreee(
                 ucolors = sorted(list(np.unique(colorlist)))
                 type_num = len(ucolors)
                 _cmp = cm.get_cmap(colormap_list[j], type_num)
-                _colorlist = [_cmp(ucolors.index(c)) for c in colorlist]
-                _colorlist = np.array(_colorlist)[Z2["leaves"]]
+                
+                # Create a mapping from class to color
+                class_to_color = {cls: _cmp(idx) for idx, cls in enumerate(ucolors)}
+                
+                # Map each class to its color
+                _colorlist = [class_to_color[cls] for cls in colorlist]
+                
+                # FIX: Apply the leaf order to the colorlist
+                # This ensures the colors match the order of labels in the visualization
+                _colorlist = np.array(_colorlist)[leaf_order]
+                
                 outerrad = outerrad - width * j - space * j
                 
                 # draw the pie chart with even wedges
@@ -290,7 +304,7 @@ def radialTreee(
                     colors=_colorlist,
                     radius=outerrad,
                     counterclock=True,
-                    startangle=360 / (2 * n_leaves),
+                    startangle=-360 / (2 * n_leaves),
                     wedgeprops=dict(width=width),
                 )
                 labelnames.append(labelname)

@@ -46,11 +46,11 @@ def main():
     selphi_k_t_tsv = "/nfs/research/petsalaki/users/alussana/__prj__/selphi2.0-pssms/data/kinase_substrate_leaf_go_terms_bp.csv"
     out_all_pdf = "selphi2_kinase_dendrogram/radial_terms_all.pdf"
     selphi_k_p_tsv = "k_p_associations.tsv"
-    kinase_family = "tyr"
+    kinase_family = "all"
     """
 
     selphi_k_p = pd.read_csv(selphi_k_p_tsv, sep="\t", index_col=None)
-    selphi_k_p.columns = ["Kinase","Specificity","Family","Phosphosite"]
+    selphi_k_p.columns = ["Kinase","Specificity","Family"]
    
     selphi_k_t = pd.read_csv(selphi_k_t_tsv, sep=",", index_col=None)
     selphi_k_t = selphi_k_t[["ID","kin"]]
@@ -65,12 +65,17 @@ def main():
         selphi_k_p = selphi_k_p.loc[selphi_k_p["Family"]!="TK"]
         selected_kinases = list(selphi_k_p["Kinase"].unique())
         selphi_k_t = selphi_k_t.loc[[k in selected_kinases for k in list(selphi_k_t["Kinase"])]]
-
+    else:
+        selected_kinases = list(selphi_k_p["Kinase"].unique())
+        selphi_k_t = selphi_k_t.loc[[k in selected_kinases for k in list(selphi_k_t["Kinase"])]]
+        
 
     # lookup table of kinase family memberships
-    kinase_family_memberships = selphi_k_p[["Kinase", "Family"]].drop_duplicates().reset_index().drop("index", axis=1)
-    kinase_specificity_class = selphi_k_p[["Kinase", "Specificity"]].drop_duplicates().reset_index().drop("index", axis=1)
-
+    lookhup_kinase_attr = selphi_k_p.drop_duplicates()
+    selphi_k_t = selphi_k_t.merge(lookhup_kinase_attr, on="Kinase")
+    kinase_family_memberships = selphi_k_t[["Kinase", "Family"]].drop_duplicates().reset_index().drop("index", axis=1)
+    kinase_specificity_class = selphi_k_t[["Kinase", "Specificity"]].drop_duplicates().reset_index().drop("index", axis=1)
+    selphi_k_t.drop(["Specificity","Family"], axis=1, inplace=True)
 
     # make dictionary of terms sets for each kinase
     kinase_phospho_sets = selphi_k_t.groupby('Kinase')['Term'].apply(set).to_dict()
@@ -134,7 +139,7 @@ def main():
     linkage_matrix = sch.linkage(
         condensed_dist,
         method='average',  # Options: 'single', 'complete', 'average', 'ward', etc.
-        optimal_ordering=True  # Attempts to optimize the leaf ordering
+        optimal_ordering=False  # Attempts to optimize the leaf ordering
     )    
 
 

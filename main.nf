@@ -66,6 +66,12 @@ include { kinase_dendrogram_ser_thr } from './modules/selphi2_pred_analysis'
 include { go_terms_dendrogram_all } from './modules/selphi2_pred_analysis'
 include { go_terms_dendrogram_tyr } from './modules/selphi2_pred_analysis'
 include { go_terms_dendrogram_ser_thr } from './modules/selphi2_pred_analysis'
+include { selphi_eval_classifier_w_random_neg_set } from './modules/selphi2_pred_analysis'
+include { selphi_eval_classifier_w_sugiyama_random_neg_set } from './modules/selphi2_pred_analysis'
+include { draw_roc_curves_per_kin_fam } from './modules/selphi2_pred_analysis'
+include { draw_pr_curves_per_kin_fam } from './modules/selphi2_pred_analysis'
+include { draw_roc_curves_per_kin_fam_sugiyama } from './modules/selphi2_pred_analysis'
+include { draw_pr_curves_per_kin_fam_sugiyama } from './modules/selphi2_pred_analysis'
 
 
 // ===== //
@@ -592,6 +598,49 @@ workflow KINASE_DENDROGRAM {
 
 }
 
+workflow PERFORMANCE_PER_KIN_FAM_PSP {
+
+    main:
+        k_p_pos_set = Channel.fromPath( selphi_2_k_p_pos_set )
+        id = Channel.of( (1..100).toList() ).flatten()
+        kin_fam = Channel.of(['AGC', 'Atypical', 'CAMK', 'CK1', 'CMGC', 'Other', 'STE', 'TK', 'TKL']).flatten()
+
+        combined_ch = kin_fam.combine( id ).combine( k_p_pos_set )
+
+        eval_results = selphi_eval_classifier_w_random_neg_set( combined_ch )
+
+        rocs = eval_results.roc_points.groupTuple()
+
+        prs = eval_results.pr_points.groupTuple()
+
+        draw_roc_curves_per_kin_fam( rocs )
+
+        draw_pr_curves_per_kin_fam( prs )
+
+}
+
+
+workflow PERFORMANCE_PER_KIN_FAM_SUGIYAMA {
+
+    main:
+        id = Channel.of( (1..100).toList() ).flatten()
+        kin_fam = Channel.of(['AGC', 'Atypical', 'CAMK', 'CK1', 'CMGC', 'Other', 'STE', 'TK', 'TKL']).flatten()
+
+        combined_ch = kin_fam.combine( id )
+
+        eval_results = selphi_eval_classifier_w_sugiyama_random_neg_set( combined_ch )
+
+        rocs = eval_results.roc_points.groupTuple()
+
+        prs = eval_results.pr_points.groupTuple()
+
+        draw_roc_curves_per_kin_fam_sugiyama( rocs )
+
+        draw_pr_curves_per_kin_fam_sugiyama( prs )
+
+}
+
+
 workflow {
 
     // get pssms
@@ -651,5 +700,9 @@ workflow {
     */
 
     KINASE_DENDROGRAM()
+
+    PERFORMANCE_PER_KIN_FAM_PSP()
+
+    PERFORMANCE_PER_KIN_FAM_SUGIYAMA()
 
 }
