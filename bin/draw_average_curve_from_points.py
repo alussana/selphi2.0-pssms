@@ -19,6 +19,10 @@ def main():
     y_str = sys.argv[2]
     file_list_txt = sys.argv[3]
     out_pdf = sys.argv[4]
+    title = sys.argv[5]
+
+    #with open(auc_txt) as auc_fh:
+    #    auc = float(auc_fh.readline().strip())
     
     x_df = pd.DataFrame()
     y_df = pd.DataFrame()
@@ -42,6 +46,8 @@ def main():
         lambda x: x.mean(),
         axis=1
     )
+
+    auc = round(np.trapezoid(mean_y_series, mean_x_series), 3)
     
     # confidence intervals
     #lower_ci_x_series = x_df.apply(
@@ -73,7 +79,7 @@ def main():
     )
     
     
-    fig, ax = plt.subplots(figsize=(4, 4))
+    fig, ax = plt.subplots(figsize=(3, 3))
     plt.plot(mean_x_series, mean_y_series, 'k-')
     plt.fill_between(x=mean_x_series, y1=min_y_series, y2=max_y_series, alpha=0.5, color='none', facecolor='black')
     ax.set(
@@ -82,6 +88,8 @@ def main():
     )
     ax.set_xlim([-0.05, 1.05])
     ax.set_ylim([-0.05, 1.05])
+    plt.text(0.3, 0.05, f"Mean AUC = {auc}", fontsize=10)
+    plt.title(title)
     sns.despine()
     plt.tight_layout()
     plt.savefig(out_pdf)

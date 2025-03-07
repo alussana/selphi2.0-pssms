@@ -26,8 +26,6 @@ def calculate_mean(input_file, output_file):
         with open(output_file, 'w') as f:
             f.write(str(mean_rounded))
             
-        print(f"Mean calculated and saved to {output_file}: {mean_rounded}")
-        
     except FileNotFoundError:
         print(f"Error: Input file '{input_file}' not found")
     except ValueError as e:

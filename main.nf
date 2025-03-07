@@ -68,14 +68,20 @@ include { go_terms_dendrogram_tyr } from './modules/selphi2_pred_analysis'
 include { go_terms_dendrogram_ser_thr } from './modules/selphi2_pred_analysis'
 include { selphi_eval_classifier_w_random_neg_set } from './modules/selphi2_pred_analysis'
 include { selphi_eval_classifier_w_sugiyama_random_neg_set } from './modules/selphi2_pred_analysis'
+include { selphi_eval_classifier_w_hijazi_random_neg_set } from './modules/selphi2_pred_analysis'
 include { draw_roc_curves_per_kin_fam } from './modules/selphi2_pred_analysis'
 include { draw_pr_curves_per_kin_fam } from './modules/selphi2_pred_analysis'
 include { draw_roc_curves_per_kin_fam_sugiyama } from './modules/selphi2_pred_analysis'
 include { draw_pr_curves_per_kin_fam_sugiyama } from './modules/selphi2_pred_analysis'
+include { draw_roc_curves_per_kin_fam_hijazi } from './modules/selphi2_pred_analysis'
+include { draw_pr_curves_per_kin_fam_hijazi } from './modules/selphi2_pred_analysis'
 include { average_auroc_kin_fam } from './modules/selphi2_pred_analysis'
 include { average_aupr_kin_fam } from './modules/selphi2_pred_analysis'
 include { average_auroc_kin_fam_sugiyama } from './modules/selphi2_pred_analysis'
 include { average_aupr_kin_fam_sugiyama } from './modules/selphi2_pred_analysis'
+include { selphi_psp_stats } from './modules/selphi2_pred_analysis'
+include { selphi_sugiyama_stats } from './modules/selphi2_pred_analysis'
+include { selphi_hijazi_stats } from './modules/selphi2_pred_analysis'
 
 // ===== //
 
@@ -609,17 +615,19 @@ workflow PERFORMANCE_PER_KIN_FAM_PSP {
         id = Channel.of( (1..100).toList() ).flatten()
         kin_fam = Channel.of(['AGC', 'Atypical', 'CAMK', 'CK1', 'CMGC', 'Other', 'STE', 'TK', 'TKL']).flatten()
 
+        selphi_psp_stats( kin_fam.combine( k_p_pos_set ) )
+
         combined_ch = kin_fam.combine( id ).combine( k_p_pos_set )
         eval_results = selphi_eval_classifier_w_random_neg_set( combined_ch )
 
         rocs = eval_results.roc_points.groupTuple()
         prs = eval_results.pr_points.groupTuple()
 
-        aurocs = eval_results.roc_auc.groupTuple()
+        /*aurocs = eval_results.roc_auc.groupTuple()
         auprs = eval_results.pr_auc.groupTuple()
 
         average_auroc_kin_fam( aurocs )
-        average_aupr_kin_fam( auprs )
+        average_aupr_kin_fam( auprs )*/
 
         draw_roc_curves_per_kin_fam( rocs )
         draw_pr_curves_per_kin_fam( prs )
@@ -655,17 +663,19 @@ workflow PERFORMANCE_PER_KIN_FAM_SUGIYAMA {
         id = Channel.of( (1..100).toList() ).flatten()
         kin_fam = Channel.of(['AGC', 'Atypical', 'CAMK', 'CK1', 'CMGC', 'Other', 'STE', 'TK', 'TKL']).flatten()
 
+        selphi_sugiyama_stats( kin_fam )
+
         combined_ch = kin_fam.combine( id )
         eval_results = selphi_eval_classifier_w_sugiyama_random_neg_set( combined_ch )
 
         rocs = eval_results.roc_points.groupTuple()
         prs = eval_results.pr_points.groupTuple()
 
-        aurocs = eval_results.roc_auc.groupTuple()
+        /*aurocs = eval_results.roc_auc.groupTuple()
         auprs = eval_results.pr_auc.groupTuple()
 
-        average_auroc_kin_fam_sugiyama( aurocs )
-        average_aupr_kin_fam_sugiyama( auprs )
+        auroc = average_auroc_kin_fam_sugiyama( aurocs )
+        aupr = average_aupr_kin_fam_sugiyama( auprs )*/
 
         draw_roc_curves_per_kin_fam_sugiyama( rocs )
         draw_pr_curves_per_kin_fam_sugiyama( prs )
@@ -692,6 +702,32 @@ workflow PERFORMANCE_PER_KIN_FAM_SUGIYAMA {
         draw_pr_curves_per_kin_fam_sugiyama( prs )
 
 }*/
+
+
+workflow PERFORMANCE_PER_KIN_FAM_HIJAZI {
+
+    main:
+        id = Channel.of( (1..100).toList() ).flatten()
+        kin_fam = Channel.of(['AGC', 'Atypical', 'CAMK', 'CK1', 'CMGC', 'Other', 'STE', 'TK', 'TKL']).flatten()
+
+        selphi_hijazi_stats( kin_fam )
+
+        combined_ch = kin_fam.combine( id )
+        eval_results = selphi_eval_classifier_w_hijazi_random_neg_set( combined_ch )
+
+        rocs = eval_results.roc_points.groupTuple()
+        prs = eval_results.pr_points.groupTuple()
+
+        /*aurocs = eval_results.roc_auc.groupTuple()
+        auprs = eval_results.pr_auc.groupTuple()
+
+        auroc = average_auroc_kin_fam_sugiyama( aurocs )
+        aupr = average_aupr_kin_fam_sugiyama( auprs )*/
+
+        draw_roc_curves_per_kin_fam_hijazi( rocs )
+        draw_pr_curves_per_kin_fam_hijazi( prs )
+
+}
 
 
 workflow {
@@ -757,5 +793,7 @@ workflow {
     PERFORMANCE_PER_KIN_FAM_PSP()
 
     PERFORMANCE_PER_KIN_FAM_SUGIYAMA()
+
+    PERFORMANCE_PER_KIN_FAM_HIJAZI()
 
 }
