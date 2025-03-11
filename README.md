@@ -11,9 +11,9 @@ Analyze SELPHI<sub>2.0</sub> predictions to generate performance plots against a
 Requires [Docker](https://www.docker.com) and [Apptainer](https://apptainer.org).
 
 ```bash
-docker build -t selphi_2.0 - < env/Dockerfile
+docker build -t selphi2.0 - < env/Dockerfile
 docker save -o env/selphi_2.0.tar.gz selphi_2.0
-singularity build env/selphi_2.0.sif docker-archive://env/selphi_2.0.tar.gz
+singularity build env/selph2.0.sif docker-archive://env/selphi2.0.tar.gz
 ```
 
 ## Customise `nextflow.config`
