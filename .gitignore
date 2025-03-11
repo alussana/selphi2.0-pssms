@@ -2,3 +2,5 @@
 misc/*flowchart.svg.*
 *.sif
 *__pycache__
+*.bck
+*.tmp
