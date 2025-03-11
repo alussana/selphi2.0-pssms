@@ -103,6 +103,43 @@ process kinase_dendrogram_tyr {
 
 /*
 [...]
+
+.META: ${selphi2_prediction_matrix_dir}/prediction_matrix.csv 
+ identifier
+     2  kinase
+     3  kinase_uniprot
+     4  kinase_specificity
+     5  kinase_family
+     6  substrate
+     7  substrate_uniprot
+     8  phosphosite_sequence
+     9  position
+    10  residue
+    11  position_residue
+    12  cantley_serthr_pssm
+    13  cantley_tyr_pssm
+    14  psp
+    15  hijazi
+    16  sugiyama
+    17  selphi
+    
+     1  AKT1_A1CF_12_S
+     2  AKT1
+     3  P31749
+     4  SerThr
+     5  AGC
+     6  A1CF
+     7  Q9NQ94
+     8  HKSGDGLsGTQKEAA
+     9  12
+    10  S
+    11  12_S
+    12  0.4418
+    13  0
+    14  FALSE
+    15  FALSE
+    16  FALSE
+    17  0.04
 */
 process kinase_dendrogram_ser_thr {
 

@@ -734,11 +734,9 @@ workflow {
 
     // get pssms
     /*ser_thr_pssm_dict_h5 = SER_THR_PSSMS().pssm*/
-    /*
     ser_thr_pssm_dict_h5 = Channel.fromPath("${projectDir}/data/S_T_PSSMs.h5")
-    tyr_pssm_dict_h5 = TYR_PSSMS().pssm
-    */
-    /*tyr_pssm_dict_h5 = Channel.fromPath("${projectDir}/data/Y_PSSMs.h5")*/
+    /*tyr_pssm_dict_h5 = TYR_PSSMS().pssm*/
+    tyr_pssm_dict_h5 = Channel.fromPath("${projectDir}/data/Y_PSSMs.h5")
 
     // generate dictionary to map Gene Name to UniProt AC
     //id_dict = GENE_2_AC_ID_DICT()
@@ -748,13 +746,12 @@ workflow {
     genesynonym_2_genename_dict = GENESYNONYM_2_GENENAME()*/
     
     // compute pssm scores on ${selphi_2_features_table} phosphosites
-    /*
+
     k_p_ser_thr_pssm_scores = SER_THR_PSSM_SCORES_FROM_SEQ( ser_thr_pssm_dict_h5 )
     k_p_pssm_scores = TYR_PSSM_SCORES_FROM_SEQ( k_p_ser_thr_pssm_scores.features_table,
                                                 k_p_ser_thr_pssm_scores.phosphosites,
                                                 tyr_pssm_dict_h5 )
 
-    */
     /*
     // compute pssm scores on ${selphi_2_regulation_features_table} phosphosites
     regulation_features_table = REGULATION_PSSM_SCORES( ser_thr_pssm_dict_h5,
