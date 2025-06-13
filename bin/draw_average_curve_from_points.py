@@ -19,7 +19,8 @@ def main():
     y_str = sys.argv[2]
     file_list_txt = sys.argv[3]
     out_pdf = sys.argv[4]
-    title = sys.argv[5]
+    if len(sys.argv) > 5:
+        title = sys.argv[5]
 
     #with open(auc_txt) as auc_fh:
     #    auc = float(auc_fh.readline().strip())
@@ -89,7 +90,8 @@ def main():
     ax.set_xlim([-0.05, 1.05])
     ax.set_ylim([-0.05, 1.05])
     plt.text(0.3, 0.05, f"Mean AUC = {auc}", fontsize=10)
-    plt.title(title)
+    if 'title' in locals():
+        plt.title(title)
     sns.despine()
     plt.tight_layout()
     plt.savefig(out_pdf)

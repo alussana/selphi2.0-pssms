@@ -205,7 +205,8 @@ process eval_phosformer_w_random_neg_set {
 
     label 'phosformer'
 
-    memory '16G'
+    memory '128G'
+    time '24h'
 
     input:
         tuple val(id),

@@ -101,12 +101,13 @@ process get_k_p_combinations {
     """
     mkdir -p pssm_score
 
-    cat ${selphi_2_k_p_info} \
-        | sed '1d' \
-        | awk -F"," '{ \
-            \$6 = toupper(\$6); \
-            \$6 = substr(\$6, 3, length(\$6) - 5); \
-            print \$1","\$2","\$3","\$4","\$5","\$6 \
+    cat ${selphi_2_k_p_info} \\
+        | awk -F "," '{print \$2","\$6","\$10","\$9","\$7","\$8}' \\
+        | sed '1d' \\
+        | awk -F"," '{ \\
+            \$6 = toupper(\$6); \\
+            \$6 = substr(\$6, 3, length(\$6) - 5); \\
+            print \$1","\$2","\$3","\$4","\$5","\$6 \\
         }' > pssm_score/k_p_combinations.csv
     """
 

@@ -43,6 +43,8 @@ include { filter_scores_for_kinases_having_pssm } from './modules/pssm_model'
 include { eval_classifier_w_random_neg_set } from './modules/pssm_model'
 include { draw_roc_curves } from './modules/pssm_model'
 include { draw_pr_curves } from './modules/pssm_model'
+include { draw_roc_curves_comparison as roc_comp_ser_thr; draw_roc_curves_comparison as roc_comp_tyr } from './modules/pssm_model'
+include { draw_pr_curves_comparison as pr_comp_ser_thr; draw_pr_curves_comparison as pr_comp_tyr } from './modules/pssm_model'
 
 include { get_p_sequences } from './modules/phosformer_model'
 include { get_s_t_phosformer_kinases } from './modules/phosformer_model'
@@ -214,7 +216,8 @@ workflow SER_THR_PSSM_SCORES_FROM_SEQ {
         ser_thr_pssm_dict_h5
 
     main:
-        phosphosites = get_k_p_combinations()
+        //phosphosites = get_k_p_combinations()
+        phosphosites = k_p_combinations
 
         phosphosites_chunks = split(
             phosphosites,
@@ -455,6 +458,14 @@ workflow SER_THR_PSSM_MODEL_ROC_PR_100_RAND_NEG_SETS {
 
         draw_pr_curves( eval_results.pr_points.collect(), 'S_T_PSSM' )
 
+        roc = eval_results.roc_points.collect()
+
+        pr = eval_results.pr_points.collect()
+
+    emit:
+        roc
+        pr
+
 }
 
 workflow TYR_PSSM_MODEL_ROC_PR_100_RAND_NEG_SETS {
@@ -484,6 +495,14 @@ workflow TYR_PSSM_MODEL_ROC_PR_100_RAND_NEG_SETS {
         draw_roc_curves( eval_results.roc_points.collect(), 'Y_PSSM' )
 
         draw_pr_curves( eval_results.pr_points.collect(), 'Y_PSSM' )
+
+        roc = eval_results.roc_points.collect()
+
+        pr = eval_results.pr_points.collect()
+
+    emit:
+        roc
+        pr
 
 }
 
@@ -523,6 +542,15 @@ workflow SER_THR_PHOSFORMER_MODEL_ROC_PR_100_RAND_NEG_SETS {
         draw_roc_curves_phosformer( eval_results.roc_points.collect(), 'S_T_Phosformer' )
 
         draw_pr_curves_phosformer( eval_results.pr_points.collect(), 'S_T_Phosformer' )
+
+        roc = eval_results.roc_points.collect()
+
+        pr = eval_results.pr_points.collect()
+
+    emit:
+        roc
+        pr
+
 }
 
 workflow TYR_PHOSFORMER_MODEL_ROC_PR_100_RAND_NEG_SETS {
@@ -561,6 +589,36 @@ workflow TYR_PHOSFORMER_MODEL_ROC_PR_100_RAND_NEG_SETS {
         draw_roc_curves_phosformer( eval_results.roc_points.collect(), 'Y_Phosformer' )
 
         draw_pr_curves_phosformer( eval_results.pr_points.collect(), 'Y_Phosformer' )
+
+        roc = eval_results.roc_points.collect()
+
+        pr =  eval_results.pr_points.collect()
+
+    emit:
+        roc
+        pr
+
+}
+
+
+workflow ROC_PR_CURVES_COMPARISON {
+
+    take:
+        pssm_roc_ser_thr
+        pssm_pr_ser_thr
+        pssm_roc_tyr
+        pssm_pr_tyr
+        phosphormer_roc_ser_thr
+        phosphormer_pr_ser_thr
+        phosphormer_roc_tyr
+        phosphormer_pr_tyr
+
+    main:
+
+        roc_comp_ser_thr( pssm_roc_ser_thr, phosphormer_roc_ser_thr, "ser_thr" )
+        pr_comp_ser_thr( pssm_pr_ser_thr, phosphormer_pr_ser_thr, "ser_thr" )
+        roc_comp_tyr( pssm_roc_tyr, phosphormer_roc_tyr, "tyr" )
+        pr_comp_tyr( pssm_pr_tyr, phosphormer_pr_tyr, "tyr" )
 
 }
 
@@ -741,9 +799,9 @@ workflow {
     // generate dictionary to map Gene Name to UniProt AC
     //id_dict = GENE_2_AC_ID_DICT()
 
-    /*ac_2_gene_dict = AC_2_REF_GENENAME_DICT()
+    ac_2_gene_dict = AC_2_REF_GENENAME_DICT()
 
-    genesynonym_2_genename_dict = GENESYNONYM_2_GENENAME()*/
+    genesynonym_2_genename_dict = GENESYNONYM_2_GENENAME()
     
     // compute pssm scores on ${selphi_2_features_table} phosphosites
 
@@ -763,27 +821,37 @@ workflow {
     */
 
     // run 100x 10-fold cross validations of a linear classifier
-    /*SER_THR_PSSM_MODEL_ROC_PR_100_RAND_NEG_SETS( k_p_ser_thr_pssm_scores.phosphosites_pssm_scores,
-                                                 ser_thr_pssm_dict_h5 )
+    pssm_ser_thr = SER_THR_PSSM_MODEL_ROC_PR_100_RAND_NEG_SETS( k_p_ser_thr_pssm_scores.phosphosites_pssm_scores,
+                                                                ser_thr_pssm_dict_h5 )
 
-    TYR_PSSM_MODEL_ROC_PR_100_RAND_NEG_SETS( k_p_pssm_scores.phosphosites_pssm_scores,
-                                             tyr_pssm_dict_h5 )
+    pssm_tyr = TYR_PSSM_MODEL_ROC_PR_100_RAND_NEG_SETS( k_p_pssm_scores.phosphosites_pssm_scores,
+                                                        tyr_pssm_dict_h5 )
 
    
     // run 100x validation run with Phosformer using random negative sets
-    SER_THR_PHOSFORMER_MODEL_ROC_PR_100_RAND_NEG_SETS( k_p_ser_thr_pssm_scores.phosphosites,
-                                                       ac_2_gene_dict,
-                                                       genesynonym_2_genename_dict )
+    phosformer_ser_thr = SER_THR_PHOSFORMER_MODEL_ROC_PR_100_RAND_NEG_SETS( k_p_ser_thr_pssm_scores.phosphosites,
+                                                                            ac_2_gene_dict,
+                                                                            genesynonym_2_genename_dict )
 
-    TYR_PHOSFORMER_MODEL_ROC_PR_100_RAND_NEG_SETS( k_p_ser_thr_pssm_scores.phosphosites,
-                                                   ac_2_gene_dict,
-                                                   genesynonym_2_genename_dict )
+    phosformer_tyr = TYR_PHOSFORMER_MODEL_ROC_PR_100_RAND_NEG_SETS( k_p_ser_thr_pssm_scores.phosphosites,
+                                                                    ac_2_gene_dict,
+                                                                    genesynonym_2_genename_dict )
+
+
+    // compare PSSM and Phosformer ROC and PR curves
+    ROC_PR_CURVES_COMPARISON( pssm_ser_thr.roc,
+                              pssm_ser_thr.pr,
+                              pssm_tyr.roc,
+                              pssm_tyr.pr,
+                              phosformer_ser_thr.roc,
+                              phosformer_ser_thr.pr,
+                              phosformer_tyr.roc,
+                              phosformer_tyr.pr )
 
 
     // train classifier of protein activity sign regulated by a phosphosite and make phosphoproteome-wide predictions
     /*regulation_model = REGULATION_MODEL( regulation_features_table,
-                                         k_p_ser_thr_pssm_scores.features_table )
-    */
+                                         k_p_ser_thr_pssm_scores.features_table )*/
 
     KINASE_DENDROGRAM()
 

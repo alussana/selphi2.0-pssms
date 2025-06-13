@@ -205,3 +205,73 @@ process draw_pr_curves {
     """
 
 }
+
+/*
+given the points for multiple ROC curves, plot their mean, min, and max at each point
+*/
+process draw_roc_curves_comparison {
+
+    publishDir "${out_dir}", pattern: "comparison_100_rand_neg_sets/*.pdf", mode: 'copy'
+
+    input:
+        path 'input/pssm_model/*.tsv'
+        path 'input/phosformer_model/*.tsv'
+        val id
+
+    output:
+        path "comparison_100_rand_neg_sets/${id}_roc_curves.pdf"
+    
+    script:
+    """
+    mkdir -p comparison_100_rand_neg_sets
+
+    ls input/pssm_model/ > curves_pssm.txt
+    sed -i 's/^/input\\/pssm_model\\//' curves_pssm.txt
+
+    ls input/phosformer_model/ > curves_phosformer.txt
+    sed -i 's/^/input\\/phosformer_model\\//' curves_phosformer.txt
+
+    draw_average_curve_from_points_comparison.py \
+        FPR \
+        TPR \
+        curves_pssm.txt \
+        curves_phosformer.txt \
+        comparison_100_rand_neg_sets/${id}_roc_curves.pdf
+    """
+
+}
+
+/*
+given the points for multiple PR curves, plot their mean, min, and max at each point
+*/
+process draw_pr_curves_comparison {
+
+    publishDir "${out_dir}", pattern: "comparison_100_rand_neg_sets/*.pdf", mode: 'copy'
+
+    input:
+        path'input/pssm_model/*.tsv'
+        path 'input/phosformer_model/*.tsv'
+        val id
+
+    output:
+        path "comparison_100_rand_neg_sets/${id}_pr_curves.pdf"
+    
+    script:
+    """
+    mkdir -p comparison_100_rand_neg_sets
+
+    ls input/pssm_model/ > curves_pssm.txt
+    sed -i 's/^/input\\/pssm_model\\//' curves_pssm.txt
+
+    ls input/phosformer_model/ > curves_phosformer.txt
+    sed -i 's/^/input\\/phosformer_model\\//' curves_phosformer.txt
+
+    draw_average_curve_from_points_comparison.py \
+        Recall \
+        Precision \
+        curves_pssm.txt \
+        curves_phosformer.txt \
+        comparison_100_rand_neg_sets/${id}_pr_curves.pdf
+    """
+
+}
